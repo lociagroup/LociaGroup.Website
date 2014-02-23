@@ -233,7 +233,7 @@ ul#menu {
     }
 
         .featured hgroup.title h1, .featured hgroup.title h2 {
-            color: #fff;
+            color: black;
         }
 
         .featured p {
@@ -611,14 +611,14 @@ tr.pager td {
     /* logo */
     header .site-title {
         margin: 10px;
-        text-align: center;
+        text-align: left;
     }
 
     /* login */
     #login {
         font-size: .85em;
         margin: 0 0 12px;
-        text-align: center;
+        text-align: right;
     }
 
         #login ul {
@@ -653,7 +653,7 @@ tr.pager td {
     ul#menu {
         margin: 0;
         padding: 0;
-        text-align: center;
+        text-align: right;
     }
 
         ul#menu li {

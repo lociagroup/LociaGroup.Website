@@ -111,85 +111,94 @@
         
     </ol>
     
+    <h4>Prottype Hardware Assembly :</h4>
+    <br />
+    <article style="text-align:center">
+        <img src="~/Images/SCADApi/RaspberryPi1.JPG" width="50%" height="50%" />
 
-    <img src="~/Images/SCADApi/RaspberryPi1.JPG" />
+        <img src="~/Images/SCADApi/RaspberryPi2.JPG" width="50%" height="50%" />
 
-    <img src="~/Images/SCADApi/RaspberryPi2.JPG" />
+        <img src="~/Images/SCADApi/RaspberryPi3.JPG" width="50%" height="50%" />
 
-    <img src="~/Images/SCADApi/RaspberryPi3.JPG" />
-    
 
-    <img src="~/Images/SCADApi/RaspberryPi4.JPG" />
+        <img src="~/Images/SCADApi/RaspberryPi4.JPG" width="50%" height="50%" />
+    </article>
     
+       
     
-         Activity Log
+    <h4>Activity Log</h4>
     
+    <p>
         Outline and brief description of latest accomplishments on the project.
-    
+    </p>
+        
     
         
-        
+    <p>
         Apache Web Server installed on Raspberry PI
-    By Hector Lopez
-    date 11/15/2013
+        By Hector Lopez
+        date 11/15/2013
+    </p> 
+
+    <p>
+        PHP Node Script
+        By Darius Dauer
+        Date : 11/14/2013
+    </p>
+
+    <code style="text-align:center">
+    #!/bin/bash<br>
+
+    #Hector, this whole script is an example of what could run on a raspi to send encrypted sensor readings to a main server.<br>
+    #It employs a rolling encryption key that effectively changes every 100 seconds.<br>
+    #That ensures that anyone who cracks the data has to do it in under 100 seconds in order for them to be able to inject bad data.<br>
+    #And the key that they figure out can only get them 100 seconds worth of data before expiring.<br>
+    #It's also got a checksum function builtin so the receiver can verify the entire set of readings is valid before saving it.<br>
+    #It identifies the sender by it's MAC address.<br>
 
 
-    PHP Node Script
-    By Darius Dauer
-    Date : 11/14/2013
+    #Set initial variables<br>
+    ##What's the system-wide password<br>
+    Password=$(echo "MySuperCoolPassword123")<br>
+    ##What's my Mac address<br>
+    MyMACAddress=$(ifconfig | grep "HWaddr" | head -n 1 | sed -e 's/.*HWaddr //' | sed -e 's/://g')<br>
 
-    #!/bin/bash
+    #Start the never-ending data aquisition loop here<br>
 
-    #Hector, this whole script is an example of what could run on a raspi to send encrypted sensor readings to a main server.
-    #It employs a rolling encryption key that effectively changes every 100 seconds.
-    #That ensures that anyone who cracks the data has to do it in under 100 seconds in order for them to be able to inject bad data.
-    #And the key that they figure out can only get them 100 seconds worth of data before expiring.
-    #It's also got a checksum function builtin so the receiver can verify the entire set of readings is valid before saving it.
-    #It identifies the sender by it's MAC address.
-
-
-    #Set initial variables
-    ##What's the system-wide password
-    Password=$(echo "MySuperCoolPassword123")
-    ##What's my Mac address
-    MyMACAddress=$(ifconfig | grep "HWaddr" | head -n 1 | sed -e 's/.*HWaddr //' | sed -e 's/://g')
-
-    #Start the never-ending data aquisition loop here
-
-    #Gather data from the sensor / Modbus. Put into Key:Value pairs.
-    SensorDataString=$(echo "MAC:$MyMACAddress Temp1:102F Temp2:68F Pressure1:2300PSI")
-    #Build an encryption key based on password and time.  Receiver will have to be in sync within 100 seconds to decrypt.
-    TimeSeedValue=$(date +%s | sed -e 's/[0-9][0-9]$//')
-    EncryptionKey=$(echo "$Password""$TimeSeedValue" | openssl md5 | sed -e 's/.* //g')
-    #Build a checksum for far-side verification
-    SensorDataStringChecksum=$(echo $SensorDataString | openssl md5 | sed -e 's/.* //g')
-    #Combine the checksum and encrypt the data for transmission.
-    EncryptedData=$(echo $SensorDataString $SensorDataStringChecksum | openssl enc -base64 -blowfish -pass pass:$EncryptionKey)
-    #Send the string to the receiver
-    #lynx -dump http://dataserver/PostData.php?Data=$EncryptedData
-    #Wait 1/10th of a second to do another transmission
-    sleep 0.1
-    #Start the loop over again.
+    #Gather data from the sensor / Modbus. Put into Key:Value pairs.<br>
+    SensorDataString=$(echo "MAC:$MyMACAddress Temp1:102F Temp2:68F Pressure1:2300PSI")<br>
+    #Build an encryption key based on password and time.  Receiver will have to be in sync within 100 seconds to decrypt.<br>
+    TimeSeedValue=$(date +%s | sed -e 's/[0-9][0-9]$//')<br>
+    EncryptionKey=$(echo "$Password""$TimeSeedValue" | openssl md5 | sed -e 's/.* //g')<br>
+    #Build a checksum for far-side verification<br>
+    SensorDataStringChecksum=$(echo $SensorDataString | openssl md5 | sed -e 's/.* //g')<br>
+    #Combine the checksum and encrypt the data for transmission.<br>
+    EncryptedData=$(echo $SensorDataString $SensorDataStringChecksum | openssl enc -base64 -blowfish -pass pass:$EncryptionKey)<br>
+    #Send the string to the receiver<br>
+    #lynx -dump http://dataserver/PostData.php?Data=$EncryptedData<br>
+    #Wait 1/10th of a second to do another transmission<br>
+    sleep 0.1<br>
+    #Start the loop over again.<br>
 
 
-    #Data dump.
-    echo "Password: " $Password
-    echo "Local Mac Address: " $MyMACAddress
-    echo "Sensor Data String: " $SensorDataString
-    echo "Time Seed Value: " $TimeSeedValue
-    echo "Encryption Key: " $EncryptionKey
-    echo "Sensor Data Checksum: " $SensorDataStringChecksum
-    echo "Encrypted Data: " $EncryptedData
+    #Data dump.<br>
+    echo "Password: " $Password<br>
+    echo "Local Mac Address: " $MyMACAddress<br>
+    echo "Sensor Data String: " $SensorDataString<br>
+    echo "Time Seed Value: " $TimeSeedValue<br>
+    echo "Encryption Key: " $EncryptionKey<br>
+    echo "Sensor Data Checksum: " $SensorDataStringChecksum<br>
+    echo "Encrypted Data: " $EncryptedData<br>
 
-    #This stuff would happen on the receiving end.
-    echo "Unencrypting Data."
-    UnencryptedData=$(echo "$EncryptedData" | openssl enc -base64 -d -blowfish -pass pass:$EncryptionKey)
-    UnencryptedSensorDataString=$(echo $UnencryptedData | sed -e 's/ [0-9a-zA-Z}]*$//')
-    UnencryptedSensorDataStringChecksum=$(echo $UnencryptedData | sed -e 's/.* //')
-    echo "Unencrypted Sensor Data: " $UnencryptedSensorDataString
-    echo "Unencrypted Checksum: " $UnencryptedSensorDataStringChecksum
-    echo "Calculated Checksum:  " $(echo $UnencryptedSensorDataString | openssl md5 | sed -e 's/.* //g')
-
+    #This stuff would happen on the receiving end.<br>
+    echo "Unencrypting Data."<br>
+    UnencryptedData=$(echo "$EncryptedData" | openssl enc -base64 -d -blowfish -pass pass:$EncryptionKey)<br>
+    UnencryptedSensorDataString=$(echo $UnencryptedData | sed -e 's/ [0-9a-zA-Z}]*$//')<br>
+    UnencryptedSensorDataStringChecksum=$(echo $UnencryptedData | sed -e 's/.* //')<br>
+    echo "Unencrypted Sensor Data: " $UnencryptedSensorDataString<br>
+    echo "Unencrypted Checksum: " $UnencryptedSensorDataStringChecksum<br>
+    echo "Calculated Checksum:  " $(echo $UnencryptedSensorDataString | openssl md5 | sed -e 's/.* //g')<br>
+</code>
 
 </article>
 
