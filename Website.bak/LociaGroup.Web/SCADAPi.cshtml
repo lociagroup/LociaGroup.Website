@@ -1,0 +1,216 @@
+﻿@{
+    Layout = "~/_SiteLayout.cshtml";
+    Page.Title = "SCADA Pi";
+}
+
+<hgroup class="title">
+    <h1>@Page.Title.</h1>
+    <h2>SCADA with the Raspberry PI.</h2>
+</hgroup>
+
+<article>
+   
+    <p>
+        Supervisory Control and Data Acquisition system that utilizes Raspberry Pi hardware and customized lPC programs. The goal is to provide the developing world a reliable open-source SCADA system at a fraction of the cost to the industrial solutions currently on the market.
+    </p>
+
+    SCADAPi Project - Github Repository (https://github.com/lociagroup/LociaGroup.RnD.git)
+   
+    <h3>Design Requirements</h3>
+    
+    <p>Hurdles to overcome using Linux and RPi:</p>
+   
+    <ol>
+
+       <li>ICCP Solution for RPi ( Master/ControlCenter Node )</li>
+         
+        <li>The Inter-Control Center Communications Protocol (ICCP or IEC 60870-6/TASE.2)[1] is being specified by utility organizations throughout the world to provide data exchange over wide area networks (WANs) between utility control centers, utilities, power pools, regional control centers, and Non-Utility Generators. ICCP is also an international standard.</li>
+
+        <li>The RPi  solution requires a ICCP protocol interfacing program. The program interprets the data over the ICCP link and is able to port the data into appropriate memory.</li>
+
+
+        Modbus solution for RPi ( Remote Node )
+
+        Integrating Open Source solution for DNP3 Protocol ( Remote Node )
+        The DNP3 protocol has significant features that make it more robust, efficient, and interoperable than older protocols such as Modbus, at the cost of somewhat higher complexity
+        The DNP3 protocol is also referenced in IEEE Std. IEEE 1379-2000, which recommends a set of best practices for implementing modern SCADA Master-RTU/IED communication links.
+        Testing /Verification
+        Free DNP3 Simulator
+
+        Reliability
+        Security
+        Flexibility
+        Scalability
+
+
+    </ol>
+
+
+    <h3>Definitions</h3>
+
+    <ol>
+        <li>
+            Master Node : Servers that receive telemetry from the slave nodes. Actively processes the telemetry and passes it along to other slave nodes or  master node interfaces.The Master Node , is also known as the Control Center in many SCADA systems.
+        </li>
+        
+        <li>
+            Slave Node: are computers or raspberry Pi’s that can communicate to RTU’s and transfer its (telemetry) to the Master node.
+        </li>
+         <li>
+        Bristol Standard Asynchronous Protocol ( BSAP )
+        </li>
+        <li>
+        Modbus
+        </li>
+        <li>
+        DF1
+        </li>
+        <li>
+        CIP
+        </li>
+        <li>
+        DNP3
+        </li>
+    <li>
+        Master Node Interfaces : any special interfaces that require the use of telemetry from the slave nodes. Example, a SQL database that can log the telemetry.  Or a web service that can access the real time telemetry and allow external applications/users to access it. Any business-logic related programs that will require manipulation of the telemetry and reporting to other interfaces or slave nodes.
+        </li>
+    
+    </ol>    
+
+    <h3>Use Cases</h3>
+    <p>
+        Example of when data will be sent and received at the same time to the same node :
+        sometimes a node will have a sensor and some motors, when the control system admin sees that the motor is running to slow then he would want to increase the motors target speed. Feedback control.
+    </p>
+    <p>
+    Example of when data will be sent from one node to multiple nodes:
+    The motor speed of a node will be sent to the control admins also to another company that will oversee the work done by that motor. Sometimes the multiple receiving nodes can be a user’s computer, a static website, a web service, a custom application , etc.
+    </p>
+    <p>
+    Example of when data will be sent from multiple nodes to one node:
+    When multiple nodes make up a large farm of motors and their telemetry is sent to a business partner that will handle monitoring of the motors work. Then all of the separate node data should be mapped into the receiving node.
+    </p>
+
+    <h3>   Case for Shared Memory & SQL Combination</h3>
+    <p>
+        The reason I think we need to store all the telemetry in memory on the main server is to
+        actively write and read to the same memory location at the same time. This will allow the php script to bring the data from the node and write it to some memory space then have another php script reading that location and spitting it out to another node.
+    </p>
+    <p>
+        This way we create the fastest telemetry transfer. I think porting it to a SQL database and running a query every time a node requests the data, or writing to the tables will go much slower.
+    </p>
+    <p>
+    I think the SQL should be an offshore database that is populated by another program running simultaneously scanning the memory and writing it to the correct tables.  This way we create our logging .  (Maybe even build another PI with MYSQL on it and large steady state drives to handle it. It will act as an addition to the main system for people who don’t have proper SQL servers) , This method allows us to tap into our SQL DB and run complicated queries/scripts without slowing down the main real time telemetry node.
+    </p>
+
+
+    <h4>References :</h4>
+    <ol>
+        <li>
+            NERC Regulations and Guidelines
+        </li>
+        
+    </ol>
+    
+    <h4>Prottype Hardware Assembly :</h4>
+    <br />
+    <article style="text-align:center">
+        <img src="~/Images/SCADApi/RaspberryPi1.JPG" width="50%" height="50%" />
+
+        <img src="~/Images/SCADApi/RaspberryPi2.JPG" width="50%" height="50%" />
+
+        <img src="~/Images/SCADApi/RaspberryPi3.JPG" width="50%" height="50%" />
+
+
+        <img src="~/Images/SCADApi/RaspberryPi4.JPG" width="50%" height="50%" />
+    </article>
+    
+       
+    
+    <h4>Activity Log</h4>
+    
+    <p>
+        Outline and brief description of latest accomplishments on the project.
+    </p>
+        
+    
+        
+    <p>
+        Apache Web Server installed on Raspberry PI
+        By Hector Lopez
+        date 11/15/2013
+    </p> 
+
+    <p>
+        PHP Node Script
+        By Darius Dauer
+        Date : 11/14/2013
+    </p>
+
+    <code style="text-align:center">
+    #!/bin/bash<br>
+
+    #Hector, this whole script is an example of what could run on a raspi to send encrypted sensor readings to a main server.<br>
+    #It employs a rolling encryption key that effectively changes every 100 seconds.<br>
+    #That ensures that anyone who cracks the data has to do it in under 100 seconds in order for them to be able to inject bad data.<br>
+    #And the key that they figure out can only get them 100 seconds worth of data before expiring.<br>
+    #It's also got a checksum function builtin so the receiver can verify the entire set of readings is valid before saving it.<br>
+    #It identifies the sender by it's MAC address.<br>
+
+
+    #Set initial variables<br>
+    ##What's the system-wide password<br>
+    Password=$(echo "MySuperCoolPassword123")<br>
+    ##What's my Mac address<br>
+    MyMACAddress=$(ifconfig | grep "HWaddr" | head -n 1 | sed -e 's/.*HWaddr //' | sed -e 's/://g')<br>
+
+    #Start the never-ending data aquisition loop here<br>
+
+    #Gather data from the sensor / Modbus. Put into Key:Value pairs.<br>
+    SensorDataString=$(echo "MAC:$MyMACAddress Temp1:102F Temp2:68F Pressure1:2300PSI")<br>
+    #Build an encryption key based on password and time.  Receiver will have to be in sync within 100 seconds to decrypt.<br>
+    TimeSeedValue=$(date +%s | sed -e 's/[0-9][0-9]$//')<br>
+    EncryptionKey=$(echo "$Password""$TimeSeedValue" | openssl md5 | sed -e 's/.* //g')<br>
+    #Build a checksum for far-side verification<br>
+    SensorDataStringChecksum=$(echo $SensorDataString | openssl md5 | sed -e 's/.* //g')<br>
+    #Combine the checksum and encrypt the data for transmission.<br>
+    EncryptedData=$(echo $SensorDataString $SensorDataStringChecksum | openssl enc -base64 -blowfish -pass pass:$EncryptionKey)<br>
+    #Send the string to the receiver<br>
+    #lynx -dump http://dataserver/PostData.php?Data=$EncryptedData<br>
+    #Wait 1/10th of a second to do another transmission<br>
+    sleep 0.1<br>
+    #Start the loop over again.<br>
+
+
+    #Data dump.<br>
+    echo "Password: " $Password<br>
+    echo "Local Mac Address: " $MyMACAddress<br>
+    echo "Sensor Data String: " $SensorDataString<br>
+    echo "Time Seed Value: " $TimeSeedValue<br>
+    echo "Encryption Key: " $EncryptionKey<br>
+    echo "Sensor Data Checksum: " $SensorDataStringChecksum<br>
+    echo "Encrypted Data: " $EncryptedData<br>
+
+    #This stuff would happen on the receiving end.<br>
+    echo "Unencrypting Data."<br>
+    UnencryptedData=$(echo "$EncryptedData" | openssl enc -base64 -d -blowfish -pass pass:$EncryptionKey)<br>
+    UnencryptedSensorDataString=$(echo $UnencryptedData | sed -e 's/ [0-9a-zA-Z}]*$//')<br>
+    UnencryptedSensorDataStringChecksum=$(echo $UnencryptedData | sed -e 's/.* //')<br>
+    echo "Unencrypted Sensor Data: " $UnencryptedSensorDataString<br>
+    echo "Unencrypted Checksum: " $UnencryptedSensorDataStringChecksum<br>
+    echo "Calculated Checksum:  " $(echo $UnencryptedSensorDataString | openssl md5 | sed -e 's/.* //g')<br>
+</code>
+
+</article>
+
+<aside>
+    <h3>Aside Title</h3>
+    <p>
+        Use this area to provide additional information.
+    </p>
+    <ul>
+        <li><a href="~/">Home</a></li>
+        <li><a href="~/About">About</a></li>
+        <li><a href="~/Contact">Contact</a></li>
+    </ul>
+</aside>
