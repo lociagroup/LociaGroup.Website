@@ -193,24 +193,32 @@ ul#menu {
     font-weight: 600;
     margin: 0 0 5px;
     padding: 0;
-    text-align: right;
+    text-align: left;
+    display:inline;
 }
 
     ul#menu li {
-        display: inline;
         list-style: none;
-        padding-left: 15px;
+        padding-right: 15px;
+        display:inline;
+    }
+        ul#menu div {
+        list-style: none;
+        padding-right: 15px;
+        display:inline;
     }
 
         ul#menu li a {
             background: none;
             color: #999;
             text-decoration: none;
+            display:inline;
         }
 
         ul#menu li a:hover {
             color: #333;
             text-decoration: none;
+            display:inline;
         }
 
 
